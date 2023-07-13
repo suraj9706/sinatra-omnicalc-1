@@ -29,16 +29,33 @@ get '/payment/new' do
 end
 
 post '/payment' do
-  # Payment calculation logic
+  apr = params[:apr].to_f / 100
+  years = params[:years].to_i
+  present_value = params[:present_value].to_f
+
+  monthly_interest_rate = apr / 12
+  number_of_payments = years * 12
+
+  numerator = monthly_interest_rate * present_value
+  denominator = 1 - (1 + monthly_interest_rate)**(-number_of_payments)
+
+  monthly_payment = numerator / denominator
+
+  "Monthly payment: #{monthly_payment.to_fs(:currency)}"
+end
+
+post '/random' do
+  min = 1.0
+  max = 10.0
+
+  random_number = rand(min..max).round(2)
+  "Random number between #{min} and #{max}: #{random_number}"
 end
 
 get '/random/new' do
   erb :random_form
 end
 
-post '/random' do
-  # Random number generation logic
-end
 
 __END__
 
@@ -68,6 +85,7 @@ __END__
   </div>
   <div>
     <label for="years">Number of years remaining:</label>
+    <label for="years">Principal:</label>
     <input type="text" id="years" name="years">
   </div>
   <div>
